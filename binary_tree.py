@@ -1,3 +1,5 @@
+from utils import compare
+
 
 class Node:
     """A node class for binary trees.
@@ -38,4 +40,31 @@ def max_depth_simple(root: Node) -> int:
     if root is None:
         return 0
     return 1 + max(max_depth_simple(root.left), max_depth_simple(root.right))
+
+
+def is_bst(root: Node) -> bool:
+    """
+    Given a binary tree, return true if it is BST, else false. 
+    For example, the following tree is not BST, because 11 is in left subtree of 10.
+
+                10
+        7               39
+            11
+    """
+    def dfs(node: Node, value: int, expected_comparison: int):
+        if node is None:
+            return True
+        elif compare(node.value, value) != expected_comparison:
+            return False
+        else:
+            return dfs(node.left, value, expected_comparison) and dfs(node.right, value, expected_comparison)
+        
+    if root is None:
+        return True
+    elif not dfs(root.left, root.value, -1):
+        return False
+    elif not dfs(root.right, root.value, 1):
+        return False
+    
+    return is_bst(root.left) and is_bst(root.right)
 

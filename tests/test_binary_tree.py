@@ -1,7 +1,7 @@
 import unittest
-from binary_tree import Node, max_depth, max_depth_simple
+from binary_tree import Node, is_bst, max_depth, max_depth_simple
 
-class TestBinaryTree(unittest.TestCase):
+class TestBinaryTreeDepth(unittest.TestCase):
 
     def setUp(self):
         """
@@ -46,6 +46,39 @@ class TestBinaryTree(unittest.TestCase):
     def test_max_depth_methods_are_equivalent(self):
         assert max_depth(self.root) == max_depth_simple(self.root)
 
+
+class TestBinarySearchTree(unittest.TestCase):
+
+    def test_finds_correct_bst(self):
+        """Test that a correct bst with the following shape is recognized:
+                   4
+              2       6
+            1   3       5   7
+        """
+        n1 = Node(1)
+        n3 = Node(3)
+        n5 = Node(5)
+        n7 = Node(7)
+        n2 = Node(2, n1, n3)
+        n6 = Node(6, n5, n7)
+        root = Node(4, n2, n6)
+        assert is_bst(root)
+
+    def test_with_non_bst(self):
+        """Test that a non bst binary tree with the following shape is recognized
+                   4
+               2       6
+             1   3   5   -1   
+        """
+        n1 = Node(1)
+        n3 = Node(3)
+        n5 = Node(5)
+        n_off = Node(-1)
+        n2 = Node(2, n1, n3)
+        n6 = Node(6, n5, n_off)
+        root = Node(4, n2, n6)
+        assert not is_bst(root)
+        
 
 
 if __name__ == '__main__':
