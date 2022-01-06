@@ -6,32 +6,28 @@ import math
 from typing import List
 
 
-def exercise1(arr):
+# Exercise 1
+def find_p(arr: list):
 	"""The given array is 'unimodal': values increase until an index p, then decrease.
 	Find p.
 	"""
 	n = len(arr)
 
-	def divide_and_conquer(start: int, end: int) -> int:
+	def binary_search(start: int, end: int) -> int:
 		if start == end:
 			return start
 
 		middle = start + math.floor((end - start) / 2.)
 		if arr[middle] > arr[start]:
-			return divide_and_conquer(middle, end)
+			return binary_search(middle, end)
 		else:
-			return divide_and_conquer(start, middle)
+			return binary_search(start, middle)
 
-	return divide_and_conquer(0, n)
-
-
-# print(exercise1([1, 2, 3, 4, 5, 4, 3]), 4)
-# print(exercise1([5, 4, 3, 2, 1]), 0)
-# print(exercise1([1, 2, 3, 4, 5]), 4)
-# print(exercise1([10, 12, 5, 1]), 1)
+	return binary_search(0, n)
 
 
-def exercise2(prices):
+# Exercise 2
+def find_max_profit(prices: list):
 	"""Given a list of stock prices for each day, find a way to compute when to buy and when to sell (after you buy) for maximum profit.
 	In other words find i and j, i < j, so that prices[j] - prices[i] is maximized.
 	"""
@@ -140,14 +136,6 @@ def exercise2(prices):
 	dp = dynamic_programming()
 	return brute, dnq, dp
 
-# print(exercise2([4, 3, 2, 5, 1000, 1, 10]), (2, 4, 998))
-# print(exercise2([5, 4, 3, 2, 1, 2, 3, 4, 5, 4, 3, 2, 1]), (4, 8, 4))
-# print(exercise2([50, 42, 49, 20, 10, 32, 20, 14, 45, 40, 43, 42, 1]), (4, 8, 35))
-# print(exercise2([9, 1, 5]), (1, 2, 4))
-# print(exercise2([0, 10, 5]), (0, 1, 10))
-# print(exercise2([100, 110, 0, 100, 5]), (2, 3, 100))
-# print(exercise2([100, 98, 100, 110, 96, 99, 100]), (1, 3, 12))
-
 
 def mergesort(arr) -> List[int]:
 	
@@ -187,7 +175,8 @@ def mergesort(arr) -> List[int]:
 		return merged
 
 
-	return mergesort_inner(0, n-1)
+	return mergesort_inner(0, n-1) if n else []
+
 
 def mergesort_inplace(arr: List[int]) -> List[int]:
 
@@ -228,14 +217,7 @@ def mergesort_inplace(arr: List[int]) -> List[int]:
 
 		return 
 
-	mergesort_inner(0, n-1)
+	if n:
+		mergesort_inner(0, n-1)
 	return arr
-
-
-# print("mergesort")
-# print(mergesort([6,5,4,3,2,1]))
-# print(mergesort([5,3,1,4,2,6]))
-# print("mergesort inplace")
-# print(mergesort_inplace([6,5,4,3,2,1]))
-# print(mergesort_inplace([5,3,1,4,2,6]))
 
