@@ -15,48 +15,6 @@ const canConstruct = (target, wordBank, memo = {}) => {
     // space: m stack calls, each has a different m-sized target, -> O(m^2)
     //        with memo I add an object with at most m^2 keys -> O(m^2 + m^2) = O(m^2)
 
-    // // actual construction way
-    // const construct = (word, memo) => {
-    //     if (word in memo) return memo[word];
-    //     if (word === target) return true;
-    //     if (word.length >= target.length){
-    //         memo[word] = false;
-    //         return false;
-    //     }
-    //     for (let s of wordBank){
-    //         if (target.includes(s)){
-    //             const created = construct(word + s, memo);
-    //             if (created) {
-    //                 memo[word] = true;
-    //                 return true;
-    //             }
-    //         }
-    //     }
-    //     memo[word] = false;
-    //     return false;
-    // }
-    // return construct("", memo);
-
-    // // incorrect way, it creates new adjacencies when removing subsets from the middle
-    // if (target === "") return true;
-    // for (let word of wordBank){
-    //     if (target.includes(word)){
-    //         const created = canConstruct(target.replace(word, ""), wordBank);
-    //         if (created) return true;
-    //     }
-    // }
-    // return false;
-
-    // // kinda hacky way, what if there are _ in the target??
-    // if (target === "_".repeat(target.length)) return true;
-    // for (let word of wordBank){
-    //     if (target.includes(word)){
-    //         const created = canConstruct(target.replace(word, "_".repeat(word.length)), wordBank);
-    //         if (created) return true;
-    //     }
-    // }
-    // return false;
-
     // prefix only way
     if (target in memo) return memo[target];
     if (target === "") return true;
@@ -75,13 +33,38 @@ const canConstruct = (target, wordBank, memo = {}) => {
 
 // console.log(canConstruct("abc", ["a", "b", "c"]));                              // true
 // console.log(canConstruct("abcd", ["a", "c", "cd", "bc", "b"]));                 // true
-// console.log(canConstruct("aaaa", ["a", "b"]));                                  // true
 // console.log(canConstruct("ababa", ["aba", "ab"]));                              // true
 // console.log(canConstruct("abcdef", ["ab", "abc", "cd", "def", "abcd"]));        // true
 // console.log(canConstruct("skateboard", ["bo", "rd", "ate", "t", "ska", "sk", "boar"]));        // false
 // console.log(canConstruct("abcd", ["a", "bc", "cd"]));                           // false
-// console.log(canConstruct("abcdefghilmnopqrstuvz", ["a", "ab", "bc", "cd", "c", "d", "e", "f", "g", "h", "i", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "z"]));               // true
 // console.log(canConstruct("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeef", ["e", "ee", "eee", "eeee", "eeeee", "eeeeee"]));   // false
+
+
+const canConstructTab = (target, wordBank) => {
+    const m = target.length + 1
+    const table = Array(m).fill(false);
+    table[0] = true;
+    // "" t a r g e t
+    //  t f f f f f f     t: true, f: false
+
+    for (let i = 0; i < m; i++) {
+        if (table[i] === false) continue;
+        for (const word of wordBank) {
+            if (target.substring(i).startsWith(word)){
+                table[word.length + i] = true;
+            }
+        }
+    }
+    return table[m-1];
+}
+
+// console.log(canConstructTab("abc", ["a", "b", "c"]) === true);                              // true
+// console.log(canConstructTab("abcd", ["a", "c", "cd", "bc", "b"]) === true);                 // true
+// console.log(canConstructTab("ababa", ["aba", "ab"])) === true;                              // true
+// console.log(canConstructTab("abcdef", ["ab", "abc", "cd", "def", "abcd"]) === true);        // true
+// console.log(canConstructTab("skateboard", ["bo", "rd", "ate", "t", "ska", "sk", "boar"]) === false);        // false
+// console.log(canConstructTab("abcd", ["a", "bc", "cd"]) === false);                           // false
+// console.log(canConstructTab("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeef", ["e", "ee", "eee", "eeee", "eeeee", "eeeeee"]) === false);   // false
 
 
 
@@ -119,6 +102,32 @@ const canConstruct = (target, wordBank, memo = {}) => {
 // console.log(countConstruct("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeef", ["e", "ee", "eee", "eeee", "eeeee", "eeeeee"]));   // 0
 
 
+const countConstructTab = (target, wordBank) => {
+    const m = target.length + 1;
+    const table = Array(m).fill(0);
+    table[0] = 1;
+    // "" t a r g e t
+    //  1 0 0 0 0 0 0 
+
+    for (let i = 0; i < m; i++) {
+        if (table[i] === 0) continue;
+        for (const word of wordBank) {
+            if (target.substring(i).startsWith(word) && word.length + i < m){
+                table[word.length + i] += table[i];
+            }
+        }
+    }
+    return table[m - 1];
+}
+
+
+// console.log(countConstructTab("abcdef", ["ab", "abc", "cd", "def", "abcd"]) === 1);   // 1
+// console.log(countConstructTab("purple", ["purp", "p", "ur", "le", "purpl"]) === 2);   // 2
+// console.log(countConstructTab("enterapotentpot", ["a", "p", "ent", "enter", "ot", "o", "t"]) === 4);  // 4
+// console.log(countConstructTab("skateboard", ["bo", "rd", "ate", "t", "ska", "sk", "boar"]) === 0);  // 0
+// console.log(countConstructTab("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeef", ["e", "ee", "eee", "eeee", "eeeee", "eeeeee"]) === 0);   // 0
+
+
 
 /**
  * Returns all the possible ways in which the target can be constructed 
@@ -144,9 +153,34 @@ const allConstruct = (target, wordBank, memo = {}) => {
 }
 
 
-console.log(allConstruct("abcdef", ["ab", "abc", "cd", "def", "abcd"]));   // [["abc", "def"]]
-console.log(allConstruct("purple", ["purp", "p", "ur", "le", "purpl"]));   // [["purp", "le"], ["p", "ur", "p", "le"]]
-console.log(allConstruct("enterapotentpot", ["a", "p", "ent", "enter", "ot", "o", "t"]));  // 4 ways
-console.log(allConstruct("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeef", ["e", "ee", "eee", "eeee", "eeeee", "eeeeee"]));   // []
-console.log(allConstruct("skateboard", ["bo", "rd", "ate", "t", "ska", "sk", "boar"]));  // []
-console.log(allConstruct("", ["abc"]));   // [[]]
+// console.log(allConstruct("abcdef", ["ab", "abc", "cd", "def", "abcd"]));   // [["abc", "def"]]
+// console.log(allConstruct("purple", ["purp", "p", "ur", "le", "purpl"]));   // [["purp", "le"], ["p", "ur", "p", "le"]]
+// console.log(allConstruct("enterapotentpot", ["a", "p", "ent", "enter", "ot", "o", "t"]));  // 4 ways
+// console.log(allConstruct("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeef", ["e", "ee", "eee", "eeee", "eeeee", "eeeeee"]));   // []
+// console.log(allConstruct("skateboard", ["bo", "rd", "ate", "t", "ska", "sk", "boar"]));  // []
+// console.log(allConstruct("", ["abc"]));   // [[]]
+
+
+const allConstructTab = (target, wordBank) => {
+    const m = target.length + 1;
+    const table = Array(m).fill().map(() => []);
+    table[0] = [[]];
+
+    for (let i = 0; i < m; i++) {
+        if (table[i].length === 0) continue;
+        for (word of wordBank) {
+            if (target.substring(i).startsWith(word) && i + word.length < m){
+                table[i + word.length].push(...table[i].map(comb => [...comb, word]));
+            }
+        }
+    }
+    return table[m-1];
+}
+
+
+// console.log(allConstructTab("abcdef", ["ab", "abc", "cd", "def", "abcd"]));   // [["abc", "def"]]
+// console.log(allConstructTab("purple", ["purp", "p", "ur", "le", "purpl"]));   // [["purp", "le"], ["p", "ur", "p", "le"]]
+// console.log(allConstructTab("enterapotentpot", ["a", "p", "ent", "enter", "ot", "o", "t"]));  // 4 ways
+// console.log(allConstructTab("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeef", ["e", "ee", "eee", "eeee", "eeeee", "eeeeee"]));   // []
+// console.log(allConstructTab("skateboard", ["bo", "rd", "ate", "t", "ska", "sk", "boar"]));  // []
+// console.log(allConstructTab("", ["abc"]));   // [[]]
