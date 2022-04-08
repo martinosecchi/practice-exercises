@@ -50,29 +50,38 @@ def solve_sudoku(board: List[List[str]]) -> List[List[str]]:
     SQUARE_SIZE = int(n / 3)
 
     def is_complete(current_board: List[List[str]]) -> bool:
+        """Return True if the sudoku has been filled.
+        """
         for row in current_board:
             if INCOMPLETE in row:
                 return False
         return True
 
     def get_incomplete_positions(current_board: List[List[str]]) -> List[Tuple[int]]:
+        """Returns the coordinates of all sudoku cell that have not been filled.
+        """
         return [
             (i, j) for i in range(n) for j in range(n) 
             if current_board[i][j] == INCOMPLETE
         ]
 
     def get_candidates_for_position(current_board: List[List[str]], pos: Tuple[int]) -> List[int]:
+        """Returns the possible values to fill an unfilled cell.
+        """
         x, y = pos
         candidates = set(map(str, range(1, n + 1)))
 
-        # discard anything in same row, column and square
+        # discard values in same row
         for j in range(n):
             candidates.discard(current_board[x][j])
 
+        # discard values in same column
         for i in range(n):
             candidates.discard(current_board[i][y])
         
-        square_start_x, square_start_y = SQUARE_SIZE * int(x / SQUARE_SIZE), SQUARE_SIZE * int(y / SQUARE_SIZE)
+        # discard values in same square
+        square_start_x = SQUARE_SIZE * int(x / SQUARE_SIZE)
+        square_start_y = SQUARE_SIZE * int(y / SQUARE_SIZE)
         for i in range(square_start_x, square_start_x + SQUARE_SIZE):
             for j in range(square_start_y, square_start_y + SQUARE_SIZE):
                 candidates.discard(current_board[i][j])
@@ -80,9 +89,13 @@ def solve_sudoku(board: List[List[str]]) -> List[List[str]]:
         return sorted(list(candidates))
 
     def fill(current_board: List[List[str]]) -> Union[None, List[List[str]]]:
+        """Insert a viable value in a single cell and backtrack until a complete solution is found
+        or all possible combinations have been exhausted.
+        """
         if is_complete(current_board):
             return current_board
 
+        # prioritize cells with fewer candidates first
         easiest_position = None
         position_candidates = []
         for pos in get_incomplete_positions(current_board):
