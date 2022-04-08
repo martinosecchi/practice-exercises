@@ -83,25 +83,26 @@ def solve_sudoku(board: List[List[str]]) -> List[List[str]]:
         if is_complete(current_board):
             return current_board
 
-        incomplete_positions = get_incomplete_positions(current_board)
-        candidates_by_position = [
-            (pos, get_candidates_for_position(current_board, pos))
-            for pos in incomplete_positions
-        ]
-        candidates_queue = sorted(candidates_by_position, key=lambda t: len(t[1]))
-        
-        for pos, candidates in candidates_queue:
-            i, j = pos
-            if not candidates:
-                return None
-            for candidate in candidates:
-                current_board[i][j] = str(candidate)
-                filled_board = fill(current_board)
+        easiest_position = None
+        position_candidates = []
+        for pos in get_incomplete_positions(current_board):
+            candidates = get_candidates_for_position(current_board, pos)
+            if easiest_position is None or len(candidates) < len(position_candidates):
+                easiest_position = pos
+                position_candidates = candidates
 
-                if filled_board is not None:
-                    return filled_board
+        if not position_candidates:
+            return None
 
-                current_board[i][j] = INCOMPLETE
+        for candidate in position_candidates:
+            i, j = easiest_position
+            current_board[i][j] = str(candidate)
+            filled_board = fill(current_board)
+
+            if filled_board is not None:
+                return filled_board
+
+            current_board[i][j] = INCOMPLETE
         return None
 
     return fill(board)
@@ -189,3 +190,4 @@ expected = [
 for test_board in tests:
     solution = solve_sudoku(test_board)
     assert solution == expected, f"Wrong answer, \nExpected: \n{pretty_string(expected)}\nGot: \n{pretty_string(solution)}"
+    print("correct")
